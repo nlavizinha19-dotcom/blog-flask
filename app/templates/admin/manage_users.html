@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Gerenciar Usuários - Blog Flask{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">👥 Gerenciar Usuários</h1>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Usuário</th>
+                <th>Email</th>
+                <th>Posts</th>
+                <th>Admin</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users.items %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.posts.count() }}</td>
+                <td>
+                    <span class="badge {% if user.is_admin %}bg-success{% else %}bg-secondary{% endif %}">
+                        {% if user.is_admin %}Admin{% else %}Usuário{% endif %}
+                    </span>
+                </td>
+                <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    {% if user.id != current_user.id %}
+                    <form method="POST" action="{{ url_for('admin.toggle_admin', user_id=user.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm {% if user.is_admin %}btn-warning{% else %}btn-success{% endif %}">
+                            {% if user.is_admin %}Remover Admin{% else %}Tornar Admin{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginação -->
+{% if users.pages > 1 %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if users.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_users', page=users.prev_num) }}">Anterior</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in users.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == users.page %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.manage_users', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if users.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_users', page=users.next_num) }}">Próxima</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

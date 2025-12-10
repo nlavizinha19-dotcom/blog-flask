@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Design - Temas - Blog Flask{% endblock %}
+
+{% block content %}
+<style>
+    .theme-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .badge-primary {
+        background-color: var(--primary-color);
+    }
+    .badge-secondary {
+        background-color: var(--secondary-color);
+        color: black;
+        border: 1px solid #ddd;
+    }
+    .badge-accent {
+        background-color: var(--accent-color);
+    }
+</style>
+
+<h1 class="mb-4">🎨 Temas Disponíveis</h1>
+
+<div class="row">
+    {% for theme in themes %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ theme.name }}</h5>
+                <p class="card-text">{{ theme.description }}</p>
+                
+                <div class="mb-3" style="--primary-color: {{ theme.primary_color }}; --secondary-color: {{ theme.secondary_color }}; --accent-color: {{ theme.accent_color }};">
+                    <span class="badge theme-badge badge-primary">Primária</span>
+                    <span class="badge theme-badge badge-secondary">Secundária</span>
+                    <span class="badge theme-badge badge-accent">Acentuada</span>
+                </div>
+
+                {% if theme.is_active %}
+                <span class="badge bg-success">Ativo</span>
+                {% else %}
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <form method="POST" action="{{ url_for('design.activate_theme', theme_id=theme.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-primary">Ativar</button>
+                </form>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if current_user.is_authenticated and current_user.is_admin %}
+<hr>
+<div class="mt-4">
+    <a href="{{ url_for('design.customizer') }}" class="btn btn-primary">Customizador</a>
+</div>
+{% endif %}
+{% endblock %}

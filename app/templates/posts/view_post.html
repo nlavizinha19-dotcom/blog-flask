@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - Blog Flask{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <article>
+            <header class="mb-4">
+                <h1>{{ post.title }}</h1>
+                <p class="text-muted">
+                    Por <a href="{{ url_for('users.profile', username=post.author.username) }}">{{ post.author.username }}</a>
+                    em {{ post.published_at.strftime('%d/%m/%Y às %H:%M') }}
+                </p>
+                <p class="text-muted">
+                    👁️ {{ post.views_count }} visualizações
+                </p>
+            </header>
+
+            {% if post.featured_image %}
+            <img src="{{ post.featured_image }}" class="img-fluid mb-4" alt="{{ post.title }}">
+            {% endif %}
+
+            <div class="post-content mb-4">
+                {{ post.content | safe }}
+            </div>
+
+            <footer class="border-top pt-3 mb-4">
+                <div class="mb-3">
+                    {% for category in post.categories %}
+                    <a href="{{ url_for('categories_tags.category', slug=category.slug) }}" class="badge bg-primary text-decoration-none">{{ category.name }}</a>
+                    {% endfor %}
+                </div>
+                <div>
+                    {% for tag in post.tags %}
+                    <a href="{{ url_for('categories_tags.tag', slug=tag.slug) }}" class="badge bg-secondary text-decoration-none">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+            </footer>
+
+            {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user.is_admin) %}
+            <div class="mb-4">
+                <a href="{{ url_for('posts.edit_post', slug=post.slug) }}" class="btn btn-warning btn-sm">Editar</a>
+                <form method="POST" action="{{ url_for('posts.delete_post', slug=post.slug) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja deletar este post?')">Deletar</button>
+                </form>
+            </div>
+            {% endif %}
+        </article>
+
+        <hr class="my-5">
+
+        <!-- Comentários -->
+        <section>
+            <h3 class="mb-4">💬 Comentários ({{ post.comments.count() }})</h3>
+
+            {% if current_user.is_authenticated %}
+            <form method="POST" action="{{ url_for('comments.add_comment', slug=post.slug) }}" class="mb-4">
+                <div class="form-group mb-3">
+                    <label for="content" class="form-label">Adicionar Comentário</label>
+                    <textarea class="form-control" id="content" name="content" rows="4" placeholder="Seu comentário..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Comentar</button>
+            </form>
+            {% else %}
+            <div class="alert alert-info mb-4">
+                <a href="{{ url_for('users.login') }}">Faça login</a> para deixar um comentário.
+            </div>
+            {% endif %}
+
+            {% if post.comments.count() > 0 %}
+                {% for comment in post.comments %}
+                {% if comment.is_approved %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <strong>{{ comment.author.username }}</strong> em {{ comment.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                        </h6>
+                        <p class="card-text">{{ comment.content }}</p>
+                        
+                        {% if current_user.is_authenticated and (current_user.id == comment.author_id or current_user.is_admin) %}
+                        <small>
+                            <form method="POST" action="{{ url_for('comments.delete_comment', comment_id=comment.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-link btn-sm p-0" onclick="return confirm('Deletar comentário?')">Deletar</button>
+                            </form>
+                        </small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            {% else %}
+            <p class="text-muted">Sem comentários ainda. Seja o primeiro a comentar!</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Autor -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">👤 Sobre o Autor</h5>
+                <p><strong>{{ post.author.first_name }} {{ post.author.last_name }}</strong></p>
+                <p class="card-text">{{ post.author.bio }}</p>
+                <a href="{{ url_for('users.profile', username=post.author.username) }}" class="btn btn-sm btn-outline-primary">Ver perfil</a>
+            </div>
+        </div>
+
+        <!-- Posts relacionados -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">📚 Outros Posts</h5>
+                {% if post.author.posts.count() > 1 %}
+                    <ul class="list-unstyled">
+                        {% for p in post.author.posts.filter_by(is_published=True).limit(5).all() %}
+                            {% if p.id != post.id %}
+                            <li class="mb-2">
+                                <a href="{{ url_for('posts.view_post', slug=p.slug) }}" class="text-decoration-none">{{ p.title }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                <p class="text-muted">Este é o único post publicado.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

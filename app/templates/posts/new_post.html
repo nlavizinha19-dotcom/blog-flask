@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Post - Blog Flask{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h1 class="mb-4">✍️ Criar Novo Post</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">Título *</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="summary" class="form-label">Resumo (para listagem)</label>
+                <textarea class="form-control" id="summary" name="summary" rows="2" placeholder="Um pequeno resumo do post..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Conteúdo *</label>
+                <textarea class="form-control" id="content" name="content" rows="10" placeholder="Conteúdo do post..." required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="categories" class="form-label">Categorias</label>
+                <select class="form-select" id="categories" name="categories" multiple>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="tags" class="form-label">Tags</label>
+                <input type="text" class="form-control" id="tags" name="tags" placeholder="Separadas por vírgula...">
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_published" name="is_published">
+                <label class="form-check-label" for="is_published">
+                    Publicar agora
+                </label>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_featured" name="is_featured">
+                <label class="form-check-label" for="is_featured">
+                    Destacar este post
+                </label>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Criar Post</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script>
+    $('#content').summernote({
+        placeholder: 'Conteúdo do post...',
+        tabsize: 2,
+        height: 300
+    });
+</script>
+{% endblock %}

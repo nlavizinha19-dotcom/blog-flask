@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Blog Flask{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">📊 Painel de Administração</h1>
+
+    <!-- Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📝 Posts</h5>
+                    <h2 class="text-primary">{{ stats.total_posts }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Usuários</h5>
+                    <h2 class="text-success">{{ stats.total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">💬 Comentários</h5>
+                    <h2 class="text-info">{{ stats.total_comments }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">👁️ Visualizações</h5>
+                    <h2 class="text-warning">{{ stats.total_views }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Admin -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">⚙️ Gerenciamento</h5>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline-primary">Posts</a>
+                        <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline-primary">Usuários</a>
+                        <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-outline-primary">Categorias</a>
+                        <a href="{{ url_for('admin.manage_tags') }}" class="btn btn-outline-primary">Tags</a>
+                        <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline-primary">Comentários</a>
+                        <a href="{{ url_for('design.customizer') }}" class="btn btn-outline-primary">Design</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Posts Recentes -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">📝 Posts Recentes</h5>
+                </div>
+                <div class="card-body">
+                    {% for post in recent_posts %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h6>{{ post.title }}</h6>
+                        <small class="text-muted">Por {{ post.author.username }} - {{ post.created_at.strftime('%d/%m/%Y') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Comentários Recentes -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">💬 Comentários Recentes</h5>
+                </div>
+                <div class="card-body">
+                    {% for comment in recent_comments %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <h6>{{ comment.author.username }}</h6>
+                        <small class="text-muted">{{ comment.content[:50] }}...</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

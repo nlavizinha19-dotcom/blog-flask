@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Gerenciar Posts - Blog Flask{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📝 Gerenciar Posts</h1>
+
+<div class="mb-4">
+    <a href="{{ url_for('posts.new_post') }}" class="btn btn-primary">Novo Post</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts.items %}
+            <tr>
+                <td><a href="{{ url_for('posts.view_post', slug=post.slug) }}" class="text-decoration-none">{{ post.title }}</a></td>
+                <td>{{ post.author.username }}</td>
+                <td>
+                    <span class="badge {% if post.is_published %}bg-success{% else %}bg-warning{% endif %}">
+                        {% if post.is_published %}Publicado{% else %}Rascunho{% endif %}
+                    </span>
+                </td>
+                <td>{{ post.views_count }}</td>
+                <td>{{ post.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <a href="{{ url_for('posts.edit_post', slug=post.slug) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <form method="POST" action="{{ url_for('posts.delete_post', slug=post.slug) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza?')">Deletar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginação -->
+{% if posts.pages > 1 %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if posts.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_posts', page=posts.prev_num) }}">Anterior</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in posts.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == posts.page %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.manage_posts', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if posts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_posts', page=posts.next_num) }}">Próxima</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

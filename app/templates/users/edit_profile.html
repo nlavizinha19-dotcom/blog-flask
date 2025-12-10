@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil - Blog Flask{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="mb-4">✏️ Editar Perfil</h1>
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="first_name" class="form-label">Primeiro Nome</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ current_user.first_name or '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Último Nome</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ current_user.last_name or '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="bio" class="form-label">Biografia</label>
+                <textarea class="form-control" id="bio" name="bio" rows="4">{{ current_user.bio or '' }}</textarea>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                <a href="{{ url_for('users.profile', username=current_user.username) }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

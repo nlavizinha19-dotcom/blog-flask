@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Blog Flask{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ category.name }}</h1>
+<p class="text-muted">{{ category.description }}</p>
+
+{% if posts.items %}
+    <div class="row">
+        {% for post in posts.items %}
+        <div class="col-md-12 mb-4">
+            <article class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        <a href="{{ url_for('posts.view_post', slug=post.slug) }}" class="text-decoration-none">{{ post.title }}</a>
+                    </h3>
+                    <p class="text-muted">
+                        <small>Por {{ post.author.username }} em {{ post.published_at.strftime('%d/%m/%Y') }}</small>
+                    </p>
+                    <p class="card-text">{{ post.summary[:200] }}...</p>
+                    <a href="{{ url_for('posts.view_post', slug=post.slug) }}" class="btn btn-outline-primary btn-sm">Ler mais</a>
+                </div>
+            </article>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    {% if posts.pages > 1 %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if posts.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('categories_tags.category', slug=category.slug, page=posts.prev_num) }}">Anterior</a>
+            </li>
+            {% endif %}
+            
+            {% for page_num in posts.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num == posts.page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('categories_tags.category', slug=category.slug, page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if posts.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('categories_tags.category', slug=category.slug, page=posts.next_num) }}">Próxima</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+{% else %}
+<div class="alert alert-info">
+    Nenhum post nesta categoria ainda.
+</div>
+{% endif %}
+
+<a href="{{ url_for('main.index') }}" class="btn btn-secondary mt-4">← Voltar</a>
+{% endblock %}

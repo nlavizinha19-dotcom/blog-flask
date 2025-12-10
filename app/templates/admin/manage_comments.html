@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Comentários - Blog Flask{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">💬 Moderar Comentários</h1>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Autor</th>
+                <th>Comentário</th>
+                <th>Post</th>
+                <th>Status</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for comment in comments.items %}
+            <tr>
+                <td>{{ comment.author.username }}</td>
+                <td>{{ comment.content[:50] }}...</td>
+                <td><a href="{{ url_for('posts.view_post', slug=comment.post.slug) }}">{{ comment.post.title[:30] }}</a></td>
+                <td>
+                    <span class="badge {% if comment.is_approved %}bg-success{% else %}bg-warning{% endif %}">
+                        {% if comment.is_approved %}Aprovado{% else %}Pendente{% endif %}
+                    </span>
+                </td>
+                <td>{{ comment.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    {% if not comment.is_approved %}
+                    <form method="POST" action="{{ url_for('admin.approve_comment', comment_id=comment.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Aprovar</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin.reject_comment', comment_id=comment.id) }}" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza?')">Rejeitar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not comments.items %}
+<div class="alert alert-info">
+    Nenhum comentário para moderar.
+</div>
+{% endif %}
+
+<!-- Paginação -->
+{% if comments.pages > 1 %}
+<nav>
+    <ul class="pagination justify-content-center">
+        {% if comments.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_comments', page=comments.prev_num) }}">Anterior</a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in comments.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == comments.page %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.manage_comments', page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if comments.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.manage_comments', page=comments.next_num) }}">Próxima</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

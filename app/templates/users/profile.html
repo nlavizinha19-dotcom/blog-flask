@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil - Blog Flask{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                {% if user.avatar %}
+                <img src="{{ user.avatar }}" class="rounded-circle mb-3" width="150" height="150" alt="{{ user.username }}">
+                {% else %}
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 150px; height: 150px;">
+                    <span class="text-muted text-uppercase" style="font-size: 60px;">{{ user.username[0] }}</span>
+                </div>
+                {% endif %}
+                <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                <p class="text-muted">@{{ user.username }}</p>
+                <p>{{ user.bio }}</p>
+                {% if current_user == user %}
+                <a href="{{ url_for('users.edit_profile') }}" class="btn btn-primary btn-sm">Editar Perfil</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h2 class="mb-4">📝 Posts de {{ user.username }}</h2>
+        
+        {% if posts.items %}
+            {% for post in posts.items %}
+            <article class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <a href="{{ url_for('posts.view_post', slug=post.slug) }}" class="text-decoration-none">{{ post.title }}</a>
+                    </h4>
+                    <p class="card-text">{{ post.summary[:200] }}...</p>
+                    <a href="{{ url_for('posts.view_post', slug=post.slug) }}" class="btn btn-outline-primary btn-sm">Ler artigo →</a>
+                </div>
+            </article>
+            {% endfor %}
+
+            <!-- Paginação -->
+            {% if posts.pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if posts.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('users.profile', username=user.username, page=posts.prev_num) }}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in posts.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == posts.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('users.profile', username=user.username, page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if posts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('users.profile', username=user.username, page=posts.next_num) }}">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            Este usuário ainda não publicou nenhum post.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
